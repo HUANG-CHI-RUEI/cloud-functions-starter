@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // 請放 invoker
+val invoker by configurations.creating
 
 val functions_framework_api_version: String by project
 val java_function_invoker_version: String by project
@@ -29,6 +30,8 @@ repositories {
 
 dependencies {
     // 請放 dependencies
+    implementation("com.google.cloud.functions:functions-framework-api:$functions_framework_api_version")
+    invoker("com.google.cloud.functions.invoker:java-function-invoker:$java_function_invoker_version")
 
     implementation("com.github.javafaker:javafaker:$javafaker_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_json_version")
@@ -59,6 +62,16 @@ tasks.withType<KotlinCompile>() {
 }
 
 // 請放 runFunction task
+task<JavaExec>("runFunction") {
+    group = "gcp"
+    main = "com.google.cloud.functions.invoker.runner.Invoker"
+    classpath(invoker, sourceSets.main.get().runtimeClasspath)
+    args(
+        "--target", project.findProperty("runFunction.target") ?: "",
+        "--port", project.findProperty("runFunction.port") ?: 8080
+    )
+}
+
 
 tasks.named("build") {
     dependsOn(":shadowJar")
