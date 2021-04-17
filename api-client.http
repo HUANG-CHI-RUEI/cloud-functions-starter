@@ -1,6 +1,7 @@
 # 測試 Hello World 字串 限制為GET,其他POST,UPDATE會回傳BAD method
-GET http://0.0.0.0:8080
-
+GET http://0.0.0.0:8080/
+Accept: application/json
+Cache-Control: no-cache
 #> {%
 #    client.test("測試 PlainTextHandler 回傳 200", function() {
 #        client.assert(response.status === 200, "Response status is not 200");
