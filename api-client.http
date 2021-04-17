@@ -1,7 +1,7 @@
 # 測試 Hello World 字串 限制為GET,其他POST,UPDATE會回傳BAD method
-GET http://0.0.0.0:8080/
-Accept: application/json
-Cache-Control: no-cache
+#GET http://0.0.0.0:8080/
+#Accept: application/json
+#Cache-Control: no-cache
 #> {%
 #    client.test("測試 PlainTextHandler 回傳 200", function() {
 #        client.assert(response.status === 200, "Response status is not 200");
@@ -16,3 +16,7 @@ Cache-Control: no-cache
 ###
 #GET https://asia-east2-polished-bridge-311002.cloudfunctions.net/text
 
+###
+GET http://0.0.0.0:8080/?limit=5
+Accept: application/json
+Cache-Control: no-cache
