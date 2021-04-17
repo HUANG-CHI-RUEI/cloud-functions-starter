@@ -35,7 +35,7 @@ class SimpleJsonHandler: HttpFunction {
                 content = "Author: $id",
                 coverUrl = "https://www.example.com",
                 permalink = "https://www.example.com",
-                publishedAt = LocalDateTime.now().toString(),
+                publishedAt = LocalDateTime.now(),
             )
         }
 

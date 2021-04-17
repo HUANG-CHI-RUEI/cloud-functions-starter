@@ -12,6 +12,8 @@ import tw.ktrssreader.generated.CustomChannelParser
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class RssListHandler: HttpFunction {
 
@@ -32,15 +34,25 @@ class RssListHandler: HttpFunction {
             }
             return
         }
+        val limit = request.queryParameters["limit"]?.first()?.toIntOrNull() ?: 10
+
         val client = OkHttpClient()
 
         val news = mutableListOf<News>()
+
+        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
+
 
         rssSource.forEach { name, url ->
             val rssRequest = Request.Builder().url(url).build()
             val xmlString = client.newCall(rssRequest).execute().body?.string() ?: ""
             val rssChannel = CustomChannelParser.parse(xmlString)
             rssChannel.items.forEachIndexed { index, item ->
+                val parsedPubDate = item.pubDate?.substringAfter(", ")
+                    ?.replace(" +0000", "")
+                    ?.replace(" GMT", "")
+                    ?.trim()
+                    .toString()
 
                 news.add(
                     News(
@@ -50,13 +62,13 @@ class RssListHandler: HttpFunction {
                         content =  item.description ?: "",
                         coverUrl = item.featuredImage ?: "",
                         permalink = item.link ?: "",
-                        publishedAt = "",
+                        publishedAt = LocalDateTime.parse(parsedPubDate, formatter),
                     )
                 )
             }
         }
-
-
+        val parsedNews = news.sortedByDescending { it.publishedAt }
+            .take(limit)
 
         with(response) {
             with(response) {
@@ -64,7 +76,7 @@ class RssListHandler: HttpFunction {
                 setContentType("application/json")
                 writer.write(
                     Json.encodeToString(
-                        mapOf("data" to news)
+                        mapOf("data" to parsedNews)
                     )
                 )
             }
